@@ -159,4 +159,27 @@ class LinkedDecTriWaveView (ctx : Context) : View(ctx) {
             curr.startUpdating(startcb)
         }
     }
+
+    data class Renderer(var view : LinkedDecTriWaveView) {
+
+        private val dtw : LinkedDTW = LinkedDTW(0)
+
+        private val animator : Animator = Animator(view)
+
+        fun render(canvas : Canvas, paint : Paint) {
+            canvas.drawColor(Color.parseColor("#BDBDBD"))
+            dtw.draw(canvas, paint)
+            animator.animate {
+                dtw.update {j, scale ->
+                    animator.stop()
+                }
+            }
+        }
+
+        fun handleTap() {
+            dtw.startUpdating {
+                animator.start()
+            }
+        }
+    }
 }
