@@ -22,6 +22,12 @@ class LinkedDecTriWaveView (ctx : Context) : View(ctx) {
 
     private val renderer : Renderer = Renderer(this)
 
+    var onCompletionListener : OnCompletionListener ?= null
+
+    fun setOnCompletionListener(onComplete : (Int) -> Unit) {
+        onCompletionListener = OnCompletionListener(onComplete)
+    }
+
     override fun onDraw(canvas : Canvas) {
         renderer.render(canvas, paint)
     }
@@ -178,6 +184,9 @@ class LinkedDecTriWaveView (ctx : Context) : View(ctx) {
             animator.animate {
                 dtw.update {j, scale ->
                     animator.stop()
+                    when (scale) {
+                        1f -> view.onCompletionListener?.onComplete?.invoke(j)
+                    }
                 }
             }
         }
@@ -218,4 +227,6 @@ class LinkedDecTriWaveView (ctx : Context) : View(ctx) {
             activity.window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
         }
     }
+
+    data class OnCompletionListener(var onComplete : (Int) -> Unit)
 }
