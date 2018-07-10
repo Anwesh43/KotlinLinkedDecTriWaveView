@@ -4,6 +4,7 @@ package com.anwesh.uiprojects.linkeddectriwaveview
  * Created by anweshmishra on 10/07/18.
  */
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Paint
 import android.graphics.Canvas
@@ -182,6 +183,15 @@ class LinkedDecTriWaveView (ctx : Context) : View(ctx) {
             dtw.startUpdating {
                 animator.start()
             }
+        }
+    }
+
+    companion object {
+
+        fun create(activity : Activity) : LinkedDecTriWaveView{
+            val view : LinkedDecTriWaveView = LinkedDecTriWaveView(activity)
+            activity.setContentView(view)
+            return view
         }
     }
 }
