@@ -7,8 +7,11 @@ package com.anwesh.uiprojects.linkeddectriwaveview
 import android.content.Context
 import android.graphics.Paint
 import android.graphics.Canvas
+import android.graphics.Color
 import android.view.View
 import android.view.MotionEvent
+
+val DTW_NODES : Int = 5
 
 class LinkedDecTriWaveView (ctx : Context) : View(ctx) {
 
@@ -72,6 +75,63 @@ class LinkedDecTriWaveView (ctx : Context) : View(ctx) {
             if (animated) {
                 animated = false
             }
+        }
+    }
+
+    data class DTWNode(var i : Int, val state : DTWState = DTWState()) {
+
+        var next : DTWNode? = null
+
+        var prev : DTWNode? = null
+
+        init {
+            addNeighbor()
+        }
+
+        fun addNeighbor() {
+            if (i < DTW_NODES - 1) {
+                next = DTWNode(i + 1)
+                next?.prev = this
+            }
+        }
+
+        fun update(stopcb : (Float) -> Unit) {
+            state.update(stopcb)
+        }
+
+        fun startUpdating(startcb : () -> Unit) {
+            state.startUpdating(startcb)
+        }
+
+        fun draw(canvas : Canvas, paint : Paint) {
+            val w : Float = canvas.width.toFloat()
+            val h : Float = canvas.height.toFloat()
+            val gap : Float = Math.min(w, h) / 60
+            val sc1 : Float = Math.min(0.5f, state.scale) * 2
+            val sc2 : Float = Math.min(0.25f, Math.max(0f, state.scale - 0.5f)) * 4
+            val sc3 : Float = Math.min(0.25f, Math.max(0f, state.scale - 0.75f)) * 4
+            paint.strokeWidth = Math.min(w, h) / 60
+            paint.strokeCap = Paint.Cap.ROUND
+            paint.color = Color.parseColor("#e74c3c")
+            canvas.save()
+            canvas.translate(i * gap, h/2)
+            canvas.drawLine(0f, 0f, (gap / 2) * sc1, 0f, paint)
+            canvas.drawLine(gap/2, 0f, gap/2 + (gap/4) * sc2, -gap/4 * sc2, paint)
+            canvas.drawLine(gap / 2 + gap / 4, -gap/4, gap/2 + gap/4 + gap /4 * sc3, -gap/4 + gap/4 * sc3)
+            canvas.restore()
+            next?.draw(canvas, paint)
+        }
+
+        fun getNext(dir : Int, cb : () -> Unit) : DTWNode {
+            var curr : DTWNode? = prev
+            if (dir == 1) {
+                curr = next
+            }
+            if (curr != null) {
+                return curr
+            }
+            cb()
+            return this
         }
     }
 }
