@@ -95,8 +95,10 @@ class LinkedDecTriWaveView (ctx : Context) : View(ctx) {
             }
         }
 
-        fun update(stopcb : (Float) -> Unit) {
-            state.update(stopcb)
+        fun update(stopcb : (Int, Float) -> Unit) {
+            state.update {
+                stopcb(i, it)
+            }
         }
 
         fun startUpdating(startcb : () -> Unit) {
@@ -117,7 +119,7 @@ class LinkedDecTriWaveView (ctx : Context) : View(ctx) {
             canvas.translate(i * gap, h/2)
             canvas.drawLine(0f, 0f, (gap / 2) * sc1, 0f, paint)
             canvas.drawLine(gap/2, 0f, gap/2 + (gap/4) * sc2, -gap/4 * sc2, paint)
-            canvas.drawLine(gap / 2 + gap / 4, -gap/4, gap/2 + gap/4 + gap /4 * sc3, -gap/4 + gap/4 * sc3)
+            canvas.drawLine(gap / 2 + gap / 4, -gap/4, gap/2 + gap/4 + gap /4 * sc3, -gap/4 + gap/4 * sc3, paint)
             canvas.restore()
             next?.draw(canvas, paint)
         }
@@ -132,6 +134,29 @@ class LinkedDecTriWaveView (ctx : Context) : View(ctx) {
             }
             cb()
             return this
+        }
+    }
+
+    data class LinkedDTW(var i : Int) {
+
+        private var curr : DTWNode = DTWNode(0)
+
+        private var dir : Int = 1
+
+        fun draw(canvas : Canvas, paint : Paint) {
+            curr.draw(canvas, paint)
+        }
+
+        fun update(stopcb : (Int, Float) -> Unit) {
+            curr.update {j, scale ->
+                curr = curr.getNext(dir) {
+                    dir *= -1
+                }
+            }
+        }
+
+        fun startUpdating(startcb : () -> Unit) {
+            curr.startUpdating(startcb)
         }
     }
 }
