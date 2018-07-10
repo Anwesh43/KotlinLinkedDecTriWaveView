@@ -9,8 +9,10 @@ import android.content.Context
 import android.graphics.Paint
 import android.graphics.Canvas
 import android.graphics.Color
+import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.view.MotionEvent
+import android.view.WindowManager
 
 val DTW_NODES : Int = 5
 
@@ -188,10 +190,31 @@ class LinkedDecTriWaveView (ctx : Context) : View(ctx) {
 
     companion object {
 
-        fun create(activity : Activity) : LinkedDecTriWaveView{
+        fun create(activity : Activity, isFullScreen : Boolean) : LinkedDecTriWaveView{
             val view : LinkedDecTriWaveView = LinkedDecTriWaveView(activity)
             activity.setContentView(view)
+            if (isFullScreen) {
+                fullScreen(activity)
+            }
             return view
+        }
+
+        private fun fullScreenForSupport(activity : AppCompatActivity) {
+            activity.supportActionBar?.hide()
+        }
+
+        private fun fullScreenForNormal(activity : Activity) {
+            activity.actionBar?.hide()
+        }
+
+        private fun fullScreen(activity : Activity) {
+            if (activity is Activity) {
+               fullScreenForNormal(activity)
+            }
+            if (activity is AppCompatActivity) {
+                fullScreenForSupport(activity as AppCompatActivity)
+            }
+            activity.window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
         }
     }
 }
